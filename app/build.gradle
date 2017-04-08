@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+
 
 android {
     compileSdkVersion 25
@@ -17,6 +19,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+//    开启数据绑定功能
+    dataBinding {
+        enabled = true
+    }
+
 }
 
 dependencies {
@@ -26,5 +34,22 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
+
+//    http相关
+    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+
+//    RxAndroid 异步相关
+    compile 'io.reactivex:rxandroid:1.2.0'
+
+//    Gson
+    compile 'com.google.code.gson:gson:2.8.0'
+//    Picture Picasso
+    compile 'com.squareup.picasso:picasso:2.5.2'
+////    ButterKnife 注解相关
+//    compile 'com.jakewharton:butterknife:8.5.1'
+//    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+
+//    BootStrap主题
+    compile 'com.beardedhen:androidbootstrap:2.3.1'
     testCompile 'junit:junit:4.12'
 }
