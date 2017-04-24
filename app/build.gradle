@@ -45,11 +45,14 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
 //    Picture Picasso
     compile 'com.squareup.picasso:picasso:2.5.2'
+    //PhotoView
+    compile 'com.github.chrisbanes.photoview:library:+'
 ////    ButterKnife 注解相关
-//    compile 'com.jakewharton:butterknife:8.5.1'
-//    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile 'com.jakewharton:butterknife:8.5.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 
 //    BootStrap主题
     compile 'com.beardedhen:androidbootstrap:2.3.1'
     testCompile 'junit:junit:4.12'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }
