@@ -5,7 +5,12 @@ import android.app.Dialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +21,19 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import static com.example.zhangtao103239.sketchdraw.R.string.paintBoard;
 
@@ -28,6 +42,12 @@ import static com.example.zhangtao103239.sketchdraw.R.string.paintBoard;
  */
 
 public class paintFragment extends Fragment {
+    private File mfile;
+    private static final int POST_ERROR = 0,POST_SUCCESS = 1,GET_ERROR = 3,GET_SUCCESS = 4;
+    private static final String IMGUR_CLIENT_ID = "test";
+    private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+    private final OkHttpClient client = new OkHttpClient();
+
     @BindView(R.id.linearLayout_right)
     public LinearLayout linearLayout_right;
     @BindView(R.id.linerLaout_layer_operation)
@@ -41,6 +61,22 @@ public class paintFragment extends Fragment {
     @BindView(R.id.operate_cancel_button)
     public Button operate_cancel_button;
 
+    Handler mHandler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg)
+        {
+            super.handleMessage(msg);
+            switch (msg.what)
+            {
+                case POST_ERROR:
+                    Toast.makeText(getActivity(),"failed",Toast.LENGTH_SHORT).show();
+                    break;
+                case POST_SUCCESS:
+                    Toast.makeText(getActivity(), "succeed", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -111,7 +147,29 @@ public class paintFragment extends Fragment {
     @OnClick(R.id.paint_save_button)
     public void onpaint_save_buttonClick()
     {
-        Toast.makeText(this.getActivity(), "已保存", Toast.LENGTH_SHORT).show();
+        final EditText et = new EditText(getActivity());
+
+        new AlertDialog.Builder(getActivity()).setTitle("保存")
+                .setIcon(android.R.drawable.ic_menu_save)
+                .setView(et)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    // @OverRide
+                    public void onClick(DialogInterface dialog, int which) {
+                        String input = et.getText().toString();
+                        if (input.equals("")) {
+                            Toast.makeText(getActivity(), "请重新输入！" + input, Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            mfile=paintBoard_1.saveBitmapToPNG(input);
+                            paintBoard_1.SavePNGtoCamera(getActivity());
+                            Toast.makeText(getActivity(), "已保存",Toast.LENGTH_LONG).show();
+                            //getFragmentManager().popBackStack();
+                        }
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+        //Toast.makeText(this.getActivity(), "已保存", Toast.LENGTH_SHORT).show();
     }
 
     @OnClick (R.id.paint_exit_button)
@@ -139,8 +197,7 @@ public class paintFragment extends Fragment {
                                                 Toast.makeText(getActivity(), "搜索内容不能为空！" + input, Toast.LENGTH_LONG).show();
                                             }
                                             else {
-                                                File mfile;
-                                                mfile=paintBoard_1.saveBitmapToPNG(getActivity(),input);
+                                                mfile=paintBoard_1.saveBitmapToPNG(input);
                                                 paintBoard_1.SavePNGtoCamera(getActivity());
                                                 Toast.makeText(getActivity(), "已保存",Toast.LENGTH_LONG).show();
                                                 getFragmentManager().popBackStack();
@@ -164,5 +221,94 @@ public class paintFragment extends Fragment {
                     }})
                 .create();
         dialog.show();
+    }
+
+    /*public void OnSaveClicked(View view){
+        mfile=paintBoard_1.saveBitmapToPNG();
+        paintBoard_1.SavePNGtoCamera(getActivity());
+        Toast.makeText(getActivity(),mfile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+    }*/
+
+    @OnClick(R.id.button_upload)
+    public void OnUploadClicked(View view){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    PostPic();
+                } catch (Exception e) {
+                    mHandler.sendEmptyMessage(POST_ERROR);
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public void OnDownloadClicked(View view){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    GetPic();
+                } catch (Exception e){
+                    mHandler.sendEmptyMessage(GET_ERROR);
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public void OnFreshClicded(View view){
+        paintBoard_1.reFresh();
+    }
+
+    public void OnClearClicked(View view){
+        paintBoard_1.DrawOrClear();
+    }
+
+    private void PostPic() throws Exception{
+        mfile=paintBoard_1.saveBitmapToPNG();
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("title", "Title")
+                .addFormDataPart("file", mfile.getName(),RequestBody.create(MEDIA_TYPE_PNG, mfile))
+                .build();
+        mfile.delete();
+        Request request = new Request.Builder()
+                .header("Authorization", "Client-ID " + IMGUR_CLIENT_ID)
+                .url("http://192.168.10.175:8080/uploads")
+                .post(requestBody)
+                .build();
+
+        Response response = client.newCall(request).execute();
+        if (!response.isSuccessful())
+        {
+            throw new IOException("Unexpected code " + response);
+        }
+        else mHandler.sendEmptyMessage(POST_SUCCESS);
+
+        //System.out.println(response.body().string());
+        //Toast.makeText(this,"succeed",Toast.LENGTH_SHORT).show();
+    }
+
+    private void GetPic()throws Exception{
+        OkHttpClient client = new OkHttpClient();
+        String url="http://192.168.10.175:8080/uploads";
+        Request request = new Request.Builder().url(url).build();
+        Response response = client.newCall(request).execute();
+        ResponseBody body = response.body();
+        InputStream ips = body.byteStream();
+        Bitmap bim = BitmapFactory.decodeStream(ips);
+
+        if(!response.isSuccessful())
+        {
+            throw new IOException("Unexpected code " + response);
+        }
+        Message msg = new Message();
+        msg.what =GET_SUCCESS;
+        msg.obj = bim;
+        mHandler.sendMessage(msg);
+
     }
 }

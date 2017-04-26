@@ -199,7 +199,11 @@ public class PaintBoard extends View {
         }
     }
 
-    public File saveBitmapToPNG(Context context ,String ImageName) {
+    public File saveBitmapToPNG() {
+       return saveBitmapToPNG("forum-" + String.valueOf(System.currentTimeMillis()) + ".png");
+    }
+
+    public File saveBitmapToPNG(String ImageName) {
         String sdStatus = Environment.getExternalStorageState();
         if (!sdStatus.equals(Environment.MEDIA_MOUNTED)) {
             Log.i(TAG, "SD *****>> SD卡不存在");
@@ -213,7 +217,7 @@ public class PaintBoard extends View {
         }
         // 以系统时间命名文件
         //ImgName = "forum-" + String.valueOf(System.currentTimeMillis()) + ".png";
-        ImgName = ImageName;
+        ImgName = ImageName+".png";
         File file = new File(ImgDir, ImgName);
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -252,7 +256,7 @@ public class PaintBoard extends View {
     }
     public void reFresh()
     {
-        mBitmap=Bitmap.createBitmap(1024,780, Bitmap.Config.ARGB_8888);
+        mBitmap=Bitmap.createBitmap(1920,1080, Bitmap.Config.ARGB_8888);
         mBitmapCanvas=new Canvas(mBitmap);
         this.invalidate();
     }
