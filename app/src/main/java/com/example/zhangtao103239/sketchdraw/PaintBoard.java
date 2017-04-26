@@ -41,6 +41,7 @@ public class PaintBoard extends View {
     private float startY ;
     private File ImgDir;
     private String ImgName;
+    private int paintSize;
     private int IsDrawing;
     public int onTouchState=1;// 1正常画画  2 拖动  3 放大 4 旋转
     double nLenStart = 0;//缩放前长度
@@ -57,6 +58,7 @@ public class PaintBoard extends View {
         mBitmapCanvas = new Canvas(mBitmap);
         mBitmapCanvas.drawColor(Color.TRANSPARENT);
         IsDrawing=1;
+        setPaintSize(12);
         setPaintStyle();
     }
 
@@ -276,7 +278,7 @@ public class PaintBoard extends View {
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
         if (IsDrawing == 1) {
-            mPaint.setStrokeWidth(6);
+            mPaint.setStrokeWidth(paintSize);
             mPaint.setARGB(255,0,0,0);
         } else {//橡皮擦
             mPaint.setAlpha(0);
@@ -284,5 +286,11 @@ public class PaintBoard extends View {
             mPaint.setColor(Color.TRANSPARENT);
             mPaint.setStrokeWidth(50);
         }
+        invalidate();
+    }
+    public void setPaintSize(int size)
+    {
+        paintSize=size;
+        setPaintStyle();
     }
 }

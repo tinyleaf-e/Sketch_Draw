@@ -186,7 +186,7 @@ public class paintFragment extends Fragment {
 
                             final EditText et = new EditText(getActivity());
 
-                            new AlertDialog.Builder(getActivity()).setTitle("搜索")
+                            new AlertDialog.Builder(getActivity()).setTitle("保存")
                                     .setIcon(android.R.drawable.ic_menu_save)
                                     .setView(et)
                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -194,7 +194,7 @@ public class paintFragment extends Fragment {
                                         public void onClick(DialogInterface dialog, int which) {
                                             String input = et.getText().toString();
                                             if (input.equals("")) {
-                                                Toast.makeText(getActivity(), "搜索内容不能为空！" + input, Toast.LENGTH_LONG).show();
+                                                Toast.makeText(getActivity(), "请重新输入！" + input, Toast.LENGTH_LONG).show();
                                             }
                                             else {
                                                 mfile=paintBoard_1.saveBitmapToPNG(input);
@@ -228,6 +228,24 @@ public class paintFragment extends Fragment {
         paintBoard_1.SavePNGtoCamera(getActivity());
         Toast.makeText(getActivity(),mfile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
     }*/
+
+    @OnClick(R.id.button_size_s)
+    public void sPaintClicked(View view)
+    {
+      paintBoard_1.setPaintSize(6);
+    }
+
+    @OnClick(R.id.button_size_m)
+    public void mPaintClicked(View view)
+    {
+        paintBoard_1.setPaintSize(12);
+    }
+
+    @OnClick(R.id.button_size_l)
+    public void lPaintClicked(View view)
+    {
+        paintBoard_1.setPaintSize(18);
+    }
 
     @OnClick(R.id.button_upload)
     public void OnUploadClicked(View view){
