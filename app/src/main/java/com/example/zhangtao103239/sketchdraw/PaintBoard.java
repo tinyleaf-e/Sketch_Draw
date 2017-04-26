@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
@@ -34,6 +35,7 @@ import static android.content.ContentValues.TAG;
 public class PaintBoard extends View {
     private Paint mPaint = null;
     private Bitmap mBitmap = null;
+    private Bitmap mBitmapNew = null;
     private Canvas mBitmapCanvas = null;
     private float startX;
     private float startY ;
@@ -42,9 +44,10 @@ public class PaintBoard extends View {
     private int IsDrawing;
     public int onTouchState=1;// 1正常画画  2 拖动  3 放大 4 旋转
     double nLenStart = 0;//缩放前长度
-    double nAngleStart = 0;//旋转前角度
+    float nAngleStart = 0;//旋转前角度
     float MidPointX;
     float MidPointY;
+    Matrix matrix = new Matrix();
 
     public PaintBoard(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -76,6 +79,7 @@ public class PaintBoard extends View {
                         mBitmapCanvas.drawLine(startX, startY, stopX, stopY, mPaint);
                         startX = event.getX();
                         startY = event.getY();
+                        mBitmapNew=mBitmap;
                         invalidate();//call onDraw()
                         break;
                 }
@@ -110,17 +114,24 @@ public class PaintBoard extends View {
                     int xlen = Math.abs((int)event.getX(0) - (int)event.getX(1));
                     int ylen = Math.abs((int)event.getY(0) - (int)event.getY(1));
                     double nLenEnd = Math.sqrt((double)xlen*xlen + (double)ylen * ylen);
-                    double rate = nLenEnd/nLenStart;
+                    double rate =1+ (nLenEnd-nLenStart)/1000;
                     if(nLenEnd > nLenStart)//通过两个手指开始距离和结束距离，来判断放大缩小
                     {
                         //放大
-                        mBitmapCanvas.scale((float) rate,(float)rate);
+                        matrix.setScale((float) rate,(float) rate,MidPointX,MidPointY);
+                        //mBitmapCanvas.scale((float) rate,(float)rate);
+                        //mBitmapCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                        mBitmapCanvas.drawBitmap(mBitmap,matrix,null);
+                        invalidate();
                         Toast.makeText(getContext(), "放大",Toast.LENGTH_LONG).show();
                     }
                     else
                     {
                         //缩小
+                        matrix.setScale((float) rate,(float) rate,MidPointX,MidPointY);
                         mBitmapCanvas.scale((float) rate,(float)rate);
+                        mBitmapCanvas.drawBitmap(mBitmap,matrix,null);
+                        invalidate();
                         Toast.makeText(getContext(), "缩小",Toast.LENGTH_LONG).show();
                     }
                 }
@@ -141,7 +152,7 @@ public class PaintBoard extends View {
                     }
                     MidPointX=(event.getX(0)+event.getX(1))/2;
                     MidPointY=(event.getY(0)+event.getY(1))/2;
-                    nAngleStart = Math.toDegrees(Math.atan((event.getY(0) - event.getY(1))/(event.getX(0) - event.getX(1))));
+                    nAngleStart = (float) Math.toDegrees(Math.atan((event.getY(0) - event.getY(1))/(event.getX(0) - event.getX(1))));
                 }else if( (event.getAction()&MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP  && 2 == nCnt)
                 {
                     for(int i=0; i< nCnt; i++)
@@ -150,9 +161,10 @@ public class PaintBoard extends View {
                         float y = event.getY(i);
                         Point pt = new Point((int)x, (int)y);
                     }
-                    double nAngleEnd = Math.toDegrees(Math.atan((event.getY(0) - event.getY(1))/(event.getX(0) - event.getX(1))));
+                    float nAngleEnd = (float)Math.toDegrees(Math.atan((event.getY(0) - event.getY(1))/(event.getX(0) - event.getX(1))));
 
                     //TODO
+                    mBitmapCanvas.rotate(nAngleEnd-nAngleStart,MidPointX,MidPointY);
                 }
                 return true;
             }
@@ -182,8 +194,8 @@ public class PaintBoard extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if(mBitmap != null) {
-            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
+        if(mBitmapNew != null) {
+            canvas.drawBitmap(mBitmapNew, 0, 0, mPaint);
         }
     }
 
