@@ -36,6 +36,7 @@ public class PaintBoard extends View {
     private Paint mPaint = null;
     private Bitmap mBitmap = null;
     private Bitmap mBitmapNew = null;
+    private Bitmap mBitmapOld = null;
     private Canvas mBitmapCanvas = null;
     private float startX;
     private float startY ;
@@ -58,6 +59,7 @@ public class PaintBoard extends View {
         mBitmapCanvas.drawColor(Color.TRANSPARENT);
         IsDrawing=1;
         setPaintStyle();
+        mPaint.setAntiAlias(true);  //消除锯齿
     }
 
     @Override
@@ -79,7 +81,6 @@ public class PaintBoard extends View {
                         mBitmapCanvas.drawLine(startX, startY, stopX, stopY, mPaint);
                         startX = event.getX();
                         startY = event.getY();
-                        mBitmapNew=mBitmap;
                         invalidate();//call onDraw()
                         break;
                 }
@@ -103,7 +104,10 @@ public class PaintBoard extends View {
                     int xlen = Math.abs((int)event.getX(0) - (int)event.getX(1));
                     int ylen = Math.abs((int)event.getY(0) - (int)event.getY(1));
                     nLenStart = Math.sqrt((double)xlen*xlen + (double)ylen * ylen);
-                }else if( (event.getAction()&MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP  && 2 == nCnt)
+                    //mBitmapOld=mBitmap;
+                    mBitmapOld=mBitmap.copy(Bitmap.Config.ARGB_8888,true);
+                //}else if( (event.getAction()&MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP  && 2 == nCnt)
+                }else if( (event.getAction()&MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE  && 2 == nCnt)
                 {
                     for(int i=0; i< nCnt; i++)
                     {
@@ -115,25 +119,13 @@ public class PaintBoard extends View {
                     int ylen = Math.abs((int)event.getY(0) - (int)event.getY(1));
                     double nLenEnd = Math.sqrt((double)xlen*xlen + (double)ylen * ylen);
                     double rate =1+ (nLenEnd-nLenStart)/1000;
-                    if(nLenEnd > nLenStart)//通过两个手指开始距离和结束距离，来判断放大缩小
-                    {
                         //放大
                         matrix.setScale((float) rate,(float) rate,MidPointX,MidPointY);
                         //mBitmapCanvas.scale((float) rate,(float)rate);
-                        //mBitmapCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                        mBitmapCanvas.drawBitmap(mBitmap,matrix,null);
+                        mBitmapCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                        mBitmapCanvas.drawBitmap(mBitmapOld,matrix,null);
                         invalidate();
-                        Toast.makeText(getContext(), "放大",Toast.LENGTH_LONG).show();
-                    }
-                    else
-                    {
-                        //缩小
-                        matrix.setScale((float) rate,(float) rate,MidPointX,MidPointY);
-                        mBitmapCanvas.scale((float) rate,(float)rate);
-                        mBitmapCanvas.drawBitmap(mBitmap,matrix,null);
-                        invalidate();
-                        Toast.makeText(getContext(), "缩小",Toast.LENGTH_LONG).show();
-                    }
+                        mBitmapNew=mBitmap;
                 }
                 return true;
             }
@@ -153,7 +145,8 @@ public class PaintBoard extends View {
                     MidPointX=(event.getX(0)+event.getX(1))/2;
                     MidPointY=(event.getY(0)+event.getY(1))/2;
                     nAngleStart = (float) Math.toDegrees(Math.atan((event.getY(0) - event.getY(1))/(event.getX(0) - event.getX(1))));
-                }else if( (event.getAction()&MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP  && 2 == nCnt)
+                    mBitmapOld=mBitmap.copy(Bitmap.Config.ARGB_8888,true);
+                }else if( (event.getAction()&MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE  && 2 == nCnt)
                 {
                     for(int i=0; i< nCnt; i++)
                     {
@@ -164,7 +157,12 @@ public class PaintBoard extends View {
                     float nAngleEnd = (float)Math.toDegrees(Math.atan((event.getY(0) - event.getY(1))/(event.getX(0) - event.getX(1))));
 
                     //TODO
-                    mBitmapCanvas.rotate(nAngleEnd-nAngleStart,MidPointX,MidPointY);
+                    matrix.setRotate(nAngleEnd-nAngleStart,MidPointX,MidPointY);
+                    //mBitmapCanvas.scale((float) rate,(float)rate);
+                    mBitmapCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                    mBitmapCanvas.drawBitmap(mBitmapOld,matrix,null);
+                    invalidate();
+                    mBitmapNew=mBitmap;
                 }
                 return true;
             }
@@ -174,15 +172,15 @@ public class PaintBoard extends View {
                     case MotionEvent.ACTION_DOWN:
                         startX = event.getX();
                         startY = event.getY();
+                        mBitmapOld=mBitmap.copy(Bitmap.Config.ARGB_8888,true);
                         break;
                     case MotionEvent.ACTION_MOVE:
                         float stopX = event.getX();
                         float stopY = event.getY();
-                        Log.e(TAG,"onTouchEvent-ACTION_MOVE\nstartX is "+startX+
-                                " startY is "+startY+" stopX is "+stopX+ " stopY is "+stopY);
-                        mBitmapCanvas.drawLine(startX, startY, stopX, stopY, mPaint);
-                        startX = event.getX();
-                        startY = event.getY();
+
+                        matrix.setTranslate(stopX-startX,stopY-startY);
+                        mBitmapCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                        mBitmapCanvas.drawBitmap(mBitmapOld,matrix,null);
                         invalidate();//call onDraw()
                         break;
                 }
@@ -194,8 +192,8 @@ public class PaintBoard extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if(mBitmapNew != null) {
-            canvas.drawBitmap(mBitmapNew, 0, 0, mPaint);
+        if(mBitmap != null) {
+            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
         }
     }
 

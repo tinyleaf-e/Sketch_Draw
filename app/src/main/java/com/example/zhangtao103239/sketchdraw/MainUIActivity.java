@@ -3,6 +3,7 @@ package com.example.zhangtao103239.sketchdraw;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.KeyEvent;
 import android.view.View;
 
 /**
@@ -17,5 +18,6 @@ public class MainUIActivity extends Activity {
         setContentView(R.layout.main_ui_layout);
         getFragmentManager().beginTransaction().add(R.id.myFrameLayout,new newFragment()).commit();
     }
+
 
 }
