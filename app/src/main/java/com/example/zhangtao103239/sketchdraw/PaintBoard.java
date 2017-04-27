@@ -200,7 +200,7 @@ public class PaintBoard extends View {
     }
 
     public File saveBitmapToPNG() {
-       return saveBitmapToPNG("forum-" + String.valueOf(System.currentTimeMillis()) + ".png");
+       return saveBitmapToPNG("forum-" + String.valueOf(System.currentTimeMillis()));
     }
 
     public File saveBitmapToPNG(String ImageName) {

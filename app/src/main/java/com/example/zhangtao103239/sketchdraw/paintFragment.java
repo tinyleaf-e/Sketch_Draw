@@ -232,18 +232,21 @@ public class paintFragment extends Fragment {
     @OnClick(R.id.button_size_s)
     public void sPaintClicked(View view)
     {
+      paintBoard_1.onTouchState=1;
       paintBoard_1.setPaintSize(6);
     }
 
     @OnClick(R.id.button_size_m)
     public void mPaintClicked(View view)
     {
+        paintBoard_1.onTouchState=1;
         paintBoard_1.setPaintSize(12);
     }
 
     @OnClick(R.id.button_size_l)
     public void lPaintClicked(View view)
     {
+        paintBoard_1.onTouchState=1;
         paintBoard_1.setPaintSize(18);
     }
 
