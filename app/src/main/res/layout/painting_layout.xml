@@ -61,22 +61,22 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/button_size_s"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="B" />
+            android:text="小" />
 
         <Button
-            android:id="@+id/button20"
+            android:id="@+id/button_size_m"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="B" />
+            android:text="中" />
 
         <Button
-            android:id="@+id/button19"
+            android:id="@+id/button_size_l"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="B" />
+            android:text="大" />
     </LinearLayout>
 
     <LinearLayout
