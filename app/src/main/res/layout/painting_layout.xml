@@ -77,6 +77,18 @@
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:text="大" />
+
+        <Button
+            android:id="@+id/button_eraser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="橡皮"
+            android:visibility="gone" />
+
+        <CheckBox
+            android:id="@+id/checkBox_For_Eraser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout

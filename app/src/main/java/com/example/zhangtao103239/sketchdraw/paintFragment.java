@@ -17,6 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -54,7 +57,7 @@ public class paintFragment extends Fragment {
     private final OkHttpClient client = new OkHttpClient();
     public picSelectFragment mypicSelectFragment=new picSelectFragment();
     private ArrayList<String> UrlPool=new ArrayList<String>();
-    private int pic_id;
+    private int pic_id,paint_or_eraser=1;
 
     @BindView(R.id.linearLayout_right)
     public LinearLayout linearLayout_right;
@@ -68,7 +71,10 @@ public class paintFragment extends Fragment {
     public Button operate_confirm_button;
     @BindView(R.id.operate_cancel_button)
     public Button operate_cancel_button;
-
+    @BindView(R.id.paintShowButton)
+    public Button paint_show_button;
+    @BindView(R.id.checkBox_For_Eraser)
+    public CheckBox checkbox;
     Handler mHandler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg)
@@ -241,23 +247,53 @@ public class paintFragment extends Fragment {
     public void sPaintClicked(View view)
     {
       paintBoard_1.onTouchState=1;
-      paintBoard_1.setPaintSize(6);
+      if(paint_or_eraser==1)
+          paintBoard_1.setPaintSize(10);
+      else
+          paintBoard_1.setEraserSize(20);
     }
 
     @OnClick(R.id.button_size_m)
     public void mPaintClicked(View view)
     {
         paintBoard_1.onTouchState=1;
-        paintBoard_1.setPaintSize(12);
+        if(paint_or_eraser==1)
+            paintBoard_1.setPaintSize(20);
+        else
+            paintBoard_1.setEraserSize(40);
     }
 
     @OnClick(R.id.button_size_l)
     public void lPaintClicked(View view)
     {
         paintBoard_1.onTouchState=1;
-        paintBoard_1.setPaintSize(18);
+        if(paint_or_eraser==1)
+            paintBoard_1.setPaintSize(30);
+        else
+            paintBoard_1.setEraserSize(60);
     }
 
+    @OnClick(R.id.button_eraser)
+    public void EraserClicked(View view)
+    {
+        paintBoard_1.setEraserSize(20);
+    }
+
+    @OnCheckedChanged(R.id.checkBox_For_Eraser)
+    public void OnCheckedChange(CompoundButton buttonView,boolean isChecked)
+    {
+        if(checkbox.isChecked())
+        {
+            paint_show_button.setText("橡皮");
+            paint_or_eraser=0;
+            paintBoard_1.setEraserSize(20);
+        }
+        else{
+            paint_show_button.setText("画笔");
+            paint_or_eraser=1;
+            paintBoard_1.setPaintSize(10);
+        }
+    }
     @OnClick(R.id.button_upload)
     public void OnUploadClicked(View view){
         new Thread(new Runnable() {
@@ -294,9 +330,6 @@ public class paintFragment extends Fragment {
         paintBoard_1.reFresh();
     }
 
-    public void OnClearClicked(View view){
-        paintBoard_1.DrawOrClear();
-    }
 
     private void PostPic() throws Exception{
         mfile=paintBoard_1.saveBitmapToPNG();
@@ -350,6 +383,7 @@ public class paintFragment extends Fragment {
         UrlPool.add(0,"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1493897313&di=975a78102da1fbd55cd09b123e74ef47&imgtype=jpg&er=1&src=http%3A%2F%2Fimg3.ptpcp.com%2Fv2%2Fthumb%2Fjpg%2FNjY5MSw2MDAsMTAwLDQsMywxLC0xLDEs%2Fu%2F6EBC6208E20D6B024A85EE3905E83C11BF6709DB587A64F44141629DE67998ACF20997EDB1E36BC352BBB0FDFAD525D50234048FD3FFDDD8.jpg");
         UrlPool.add(1,"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1493908741&di=df049e2572f653c8f75baa66088fc057&imgtype=jpg&er=1&src=http%3A%2F%2Ff.hiphotos.baidu.com%2Fzhidao%2Fwh%253D450%252C600%2Fsign%3Db55cbec80ef3d7ca0ca33772c72f923f%2Faec379310a55b319c6ba7b8341a98226cefc1780.jpg");
         UrlPool.add(2,"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1493314023521&di=e729e36efeba06f6f2202c6c6a692ef6&imgtype=0&src=http%3A%2F%2Fp1.gexing.com%2FG1%2FM00%2F8A%2FE0%2FrBACE1PZi0HAabtGAAB7xjCrO-0206.jpg");
+        UrlPool.add(3,"http://pic.pimg.tw/yide168/1472052373-3488914255.png");
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(R.layout.pic_select_dialog);
         final AlertDialog dialog = builder.create();

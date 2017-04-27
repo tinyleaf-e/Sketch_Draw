@@ -43,7 +43,7 @@ public class PaintBoard extends View {
     private float startY ;
     private File ImgDir;
     private String ImgName;
-    private int paintSize;
+    private int paintSize,EraserSize;
     private int IsDrawing;
     public int onTouchState=1;// 1正常画画  2 拖动  3 放大 4 旋转
     double nLenStart = 0;//缩放前长度
@@ -54,7 +54,6 @@ public class PaintBoard extends View {
 
     public PaintBoard(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setLayerType(LAYER_TYPE_SOFTWARE,null);
         Pic_Height=1080;
         Pic_Width=1920;
         mBitmap = Bitmap.createBitmap(Pic_Width,Pic_Width, Bitmap.Config.ARGB_8888);
@@ -62,7 +61,7 @@ public class PaintBoard extends View {
         mBitmapCanvas = new Canvas(mBitmap);
         mBitmapCanvas.drawColor(Color.TRANSPARENT);
         IsDrawing=1;
-        setPaintSize(12);
+        setPaintSize(20);
         setPaintStyle();
         mPaint.setAntiAlias(true);  //消除锯齿
     }
@@ -264,35 +263,41 @@ public class PaintBoard extends View {
         this.invalidate();
     }
 
-    public void DrawOrClear()
+    private void setEraserStyle()
     {
-        IsDrawing=IsDrawing^1;
-        setPaintStyle();
+        setLayerType(LAYER_TYPE_NONE,null);
+        mPaint = new Paint();
+        mPaint.setStrokeWidth(EraserSize);
+        mPaint.setAlpha(0);
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        mPaint.setColor(Color.TRANSPARENT);
+        invalidate();
     }
 
     private void setPaintStyle()
     {
+        setLayerType(LAYER_TYPE_HARDWARE,null);
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);// 设置外边缘
         mPaint.setStrokeCap(Paint.Cap.ROUND);// 形状
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        if (IsDrawing == 1) {
-            mPaint.setStrokeWidth(paintSize);
-            mPaint.setARGB(255,0,0,0);
-        } else {//橡皮擦
-            mPaint.setAlpha(0);
-            mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-            mPaint.setColor(Color.TRANSPARENT);
-            mPaint.setStrokeWidth(50);
-        }
+        mPaint.setStrokeWidth(paintSize);
+        mPaint.setARGB(255,0,0,0);
         invalidate();
     }
+
     public void setPaintSize(int size)
     {
         paintSize=size;
         setPaintStyle();
+    }
+
+    public void setEraserSize(int size)
+    {
+        EraserSize=size;
+        setEraserStyle();
     }
 
     public void setmBitmap(Bitmap b)
