@@ -45,6 +45,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
 //    Picture Picasso
     compile 'com.squareup.picasso:picasso:2.5.2'
+//    Picture Glide
+    compile 'com.github.bumptech.glide:glide:3.6.1'
     //PhotoView
     compile 'com.github.chrisbanes.photoview:library:+'
 ////    ButterKnife 注解相关
