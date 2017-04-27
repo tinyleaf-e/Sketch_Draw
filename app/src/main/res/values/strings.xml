@@ -18,4 +18,6 @@
     <string name="copy">复制</string>
     <string name="option">G</string>
     <string name="newlayer">N</string>
+    <string name="cancel_btn">取消</string>
+    <string name="confirm_btn">确定</string>
 </resources>

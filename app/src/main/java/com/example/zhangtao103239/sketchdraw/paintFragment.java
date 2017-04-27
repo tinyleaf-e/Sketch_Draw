@@ -47,6 +47,7 @@ public class paintFragment extends Fragment {
     private static final String IMGUR_CLIENT_ID = "test";
     private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
     private final OkHttpClient client = new OkHttpClient();
+    public picSelectFragment mypicSelectFragment=new picSelectFragment();
 
     @BindView(R.id.linearLayout_right)
     public LinearLayout linearLayout_right;
@@ -260,6 +261,12 @@ public class paintFragment extends Fragment {
                 }
             }
         }).start();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(R.layout.pic_select_dialog);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
     public void OnDownloadClicked(View view){
