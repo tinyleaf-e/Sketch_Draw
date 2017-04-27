@@ -30,49 +30,50 @@
         android:background="@color/bootstrap_alert_cross_default"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        app:layout_constraintHorizontal_bias="0.0" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/pre_button"
         android:layout_width="30dp"
         android:layout_height="60dp"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="0dp"
         android:background="@mipmap/arrow_left"
-        app:layout_constraintBottom_toTopOf="@+id/button4"
+        app:layout_constraintBottom_toTopOf="@+id/updlg_cancel_btn"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/show_view"
         android:layout_width="230dp"
         android:layout_height="150dp"
         android:layout_marginBottom="16dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="16dp"
-        android:background="@color/bootstrap_brand_success"
-        app:layout_constraintBottom_toTopOf="@+id/button4"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/updlg_cancel_btn"
         app:layout_constraintLeft_toRightOf="@+id/button"
-        app:layout_constraintRight_toLeftOf="@+id/button2"
+        app:layout_constraintRight_toLeftOf="@+id/nex_button"
         app:layout_constraintTop_toBottomOf="@+id/textView5"
         app:srcCompat="@color/bootstrap_brand_danger" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/nex_button"
         android:layout_width="30dp"
         android:layout_height="60dp"
         android:layout_marginBottom="8dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="0dp"
         android:background="@mipmap/arrow_right"
-        app:layout_constraintBottom_toTopOf="@+id/button4"
+        app:layout_constraintBottom_toTopOf="@+id/updlg_cancel_btn"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/updlg_confirm_btn"
         android:layout_width="50dp"
         android:layout_height="30dp"
         android:layout_marginBottom="16dp"
@@ -83,7 +84,7 @@
         app:layout_constraintRight_toRightOf="parent" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/updlg_cancel_btn"
         android:layout_width="50dp"
         android:layout_height="30dp"
         android:layout_marginBottom="16dp"
@@ -91,5 +92,5 @@
         android:text="@string/cancel_btn"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/button3" />
+        app:layout_constraintRight_toLeftOf="@+id/updlg_confirm_btn" />
 </android.support.constraint.ConstraintLayout>

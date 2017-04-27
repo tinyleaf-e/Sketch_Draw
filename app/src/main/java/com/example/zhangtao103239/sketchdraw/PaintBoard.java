@@ -33,6 +33,7 @@ import static android.content.ContentValues.TAG;
  */
 
 public class PaintBoard extends View {
+    public int Pic_Height,Pic_Width;
     private Paint mPaint = null;
     private Bitmap mBitmap = null;
     private Bitmap mBitmapNew = null;
@@ -54,7 +55,9 @@ public class PaintBoard extends View {
     public PaintBoard(Context context, AttributeSet attrs) {
         super(context, attrs);
         setLayerType(LAYER_TYPE_SOFTWARE,null);
-        mBitmap = Bitmap.createBitmap(1920,1080, Bitmap.Config.ARGB_8888);
+        Pic_Height=1080;
+        Pic_Width=1920;
+        mBitmap = Bitmap.createBitmap(Pic_Width,Pic_Width, Bitmap.Config.ARGB_8888);
         mBitmap.eraseColor(Color.argb(0,0,0,0));
         mBitmapCanvas = new Canvas(mBitmap);
         mBitmapCanvas.drawColor(Color.TRANSPARENT);
@@ -256,7 +259,7 @@ public class PaintBoard extends View {
     }
     public void reFresh()
     {
-        mBitmap=Bitmap.createBitmap(1920,1080, Bitmap.Config.ARGB_8888);
+        mBitmap=Bitmap.createBitmap(Pic_Width,Pic_Height, Bitmap.Config.ARGB_8888);
         mBitmapCanvas=new Canvas(mBitmap);
         this.invalidate();
     }
@@ -290,5 +293,12 @@ public class PaintBoard extends View {
     {
         paintSize=size;
         setPaintStyle();
+    }
+
+    public void setmBitmap(Bitmap b)
+    {
+        this.mBitmap=b;
+        mBitmapCanvas=new Canvas(mBitmap);
+        invalidate();
     }
 }

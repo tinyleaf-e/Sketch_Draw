@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,12 +18,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,6 +53,8 @@ public class paintFragment extends Fragment {
     private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
     private final OkHttpClient client = new OkHttpClient();
     public picSelectFragment mypicSelectFragment=new picSelectFragment();
+    private ArrayList<String> UrlPool=new ArrayList<String>();
+    private int pic_id;
 
     @BindView(R.id.linearLayout_right)
     public LinearLayout linearLayout_right;
@@ -265,12 +272,9 @@ public class paintFragment extends Fragment {
             }
         }).start();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(R.layout.pic_select_dialog);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
+        CreateShowDialog();
     }
+
 
     public void OnDownloadClicked(View view){
         new Thread(new Runnable() {
@@ -338,5 +342,106 @@ public class paintFragment extends Fragment {
         msg.obj = bim;
         mHandler.sendMessage(msg);
 
+    }
+
+    private void CreateShowDialog()
+    {
+        /*暂时用了生成图片url数组*/
+        UrlPool.add(0,"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1493897313&di=975a78102da1fbd55cd09b123e74ef47&imgtype=jpg&er=1&src=http%3A%2F%2Fimg3.ptpcp.com%2Fv2%2Fthumb%2Fjpg%2FNjY5MSw2MDAsMTAwLDQsMywxLC0xLDEs%2Fu%2F6EBC6208E20D6B024A85EE3905E83C11BF6709DB587A64F44141629DE67998ACF20997EDB1E36BC352BBB0FDFAD525D50234048FD3FFDDD8.jpg");
+        UrlPool.add(1,"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1493908741&di=df049e2572f653c8f75baa66088fc057&imgtype=jpg&er=1&src=http%3A%2F%2Ff.hiphotos.baidu.com%2Fzhidao%2Fwh%253D450%252C600%2Fsign%3Db55cbec80ef3d7ca0ca33772c72f923f%2Faec379310a55b319c6ba7b8341a98226cefc1780.jpg");
+        UrlPool.add(2,"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1493314023521&di=e729e36efeba06f6f2202c6c6a692ef6&imgtype=0&src=http%3A%2F%2Fp1.gexing.com%2FG1%2FM00%2F8A%2FE0%2FrBACE1PZi0HAabtGAAB7xjCrO-0206.jpg");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(R.layout.pic_select_dialog);
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        final ImageView imageView = (ImageView) dialog.findViewById(R.id.show_view);
+        Button pre_btn = (Button) dialog.findViewById(R.id.pre_button);
+        Button nex_btn = (Button) dialog.findViewById(R.id.nex_button);
+        Button cancel_btn = (Button) dialog.findViewById(R.id.updlg_cancel_btn);
+        Button confirm_btn = (Button) dialog.findViewById(R.id.updlg_confirm_btn);
+
+
+
+        pic_id = 0;
+        String internetUrl = UrlPool.get(pic_id);
+        Glide
+                .with(this)
+                .load(internetUrl)
+                .into(imageView);
+
+        pre_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(pic_id>=1)
+                {
+                String internetUrl = UrlPool.get(--pic_id);
+                Glide
+                        .with(getActivity())
+                        .load(internetUrl)
+                        .into(imageView);
+                }
+                else
+                    Toast.makeText(getActivity(),"已经是第一张了",Toast.LENGTH_LONG).show();
+            }
+        });
+
+        nex_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(pic_id<UrlPool.size()-1)
+                {
+                    String internetUrl = UrlPool.get(++pic_id);
+                    Glide
+                            .with(getActivity())
+                            .load(internetUrl)
+                            .into(imageView);
+                }
+                else
+                    Toast.makeText(getActivity(),"已经是最后一张了",Toast.LENGTH_LONG).show();
+            }
+        });
+
+        cancel_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               dialog.cancel();
+            }
+        });
+
+        confirm_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(getActivity())
+                        .setIcon(android.R.drawable.ic_dialog_info)
+                        .setTitle("替换").setMessage("即将用此图片覆盖画板，是否确定？")
+                        .setNegativeButton("取消",null)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog2, int which) {
+                                dialog.dismiss();
+                                imageView.setDrawingCacheEnabled(true);
+                                Bitmap bitmap=Bitmap.createBitmap(imageView.getDrawingCache());
+                                int width = bitmap.getWidth();
+                                int height = bitmap.getHeight();
+                                // 设置想要的大小
+                                int newWidth = paintBoard_1.Pic_Width;
+                                int newHeight = paintBoard_1.Pic_Height;
+                                // 计算缩放比例
+                                float scaleWidth = ((float) newWidth) / width;
+                                float scaleHeight = ((float) newHeight) / height;
+                                // 取得想要缩放的matrix参数
+                                Matrix matrix = new Matrix();
+                                matrix.postScale(scaleWidth, scaleHeight);
+                                // 得到新的图片
+                                bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix,
+                                        true);
+                                imageView.setDrawingCacheEnabled(false);
+
+                                paintBoard_1.setmBitmap(bitmap);
+                            }
+                        }).show();
+            }
+        });
     }
 }
